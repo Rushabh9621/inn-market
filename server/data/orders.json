@@ -1,1 +1,34 @@
-[]
+[
+  {
+    "id": "ORD-1782587517707",
+    "roomNumber": "101",
+    "items": [
+      {
+        "id": "water",
+        "name": "Water",
+        "price": 2,
+        "quantity": 2,
+        "lineTotal": 4
+      },
+      {
+        "id": "pepsi",
+        "name": "Pepsi",
+        "price": 2,
+        "quantity": 2,
+        "lineTotal": 4
+      },
+      {
+        "id": "mountain-dew",
+        "name": "Mountain Dew",
+        "price": 2,
+        "quantity": 2,
+        "lineTotal": 4
+      }
+    ],
+    "total": 12,
+    "notes": "",
+    "status": "new",
+    "createdAt": "2026-06-27T19:11:57.707Z",
+    "updatedAt": "2026-06-27T19:11:57.707Z"
+  }
+]

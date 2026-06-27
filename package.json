@@ -7,11 +7,12 @@
   },
   "dependencies": {
     "@vitejs/plugin-react": "latest",
-    "vite": "latest",
+    "cors": "latest",
+    "express": "latest",
     "react": "latest",
     "react-dom": "latest",
-    "express": "latest",
-    "cors": "latest"
+    "socket.io-client": "^4.8.3",
+    "vite": "latest"
   },
   "devDependencies": {
     "concurrently": "latest"
