@@ -1,0 +1,99 @@
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background: #f3f7ff;
+}
+
+.page {
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 20px;
+}
+
+.card {
+  width: 100%;
+  max-width: 430px;
+  background: white;
+  border-radius: 18px;
+  padding: 26px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12);
+}
+
+h1 {
+  color: #003cff;
+  text-align: center;
+}
+
+.subtitle,
+.note {
+  text-align: center;
+  color: #555;
+}
+
+label {
+  font-weight: bold;
+  display: block;
+  margin-top: 20px;
+}
+
+input {
+  width: 100%;
+  padding: 14px;
+  font-size: 18px;
+  margin-top: 8px;
+  border-radius: 10px;
+  border: 1px solid #ccc;
+  box-sizing: border-box;
+}
+
+.product {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border: 1px solid #ddd;
+  padding: 14px;
+  border-radius: 12px;
+  margin-bottom: 12px;
+}
+
+.product span {
+  display: block;
+  color: #666;
+  margin-top: 4px;
+}
+
+.qty {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.qty button {
+  width: 34px;
+  height: 34px;
+  border: none;
+  border-radius: 50%;
+  background: #003cff;
+  color: white;
+  font-size: 20px;
+}
+
+.total {
+  font-size: 22px;
+  font-weight: bold;
+  text-align: right;
+  margin: 20px 0;
+}
+
+.orderButton {
+  width: 100%;
+  padding: 16px;
+  border: none;
+  border-radius: 12px;
+  background: #003cff;
+  color: white;
+  font-size: 18px;
+  font-weight: bold;
+}
