@@ -1,5 +1,21 @@
 [
   {
+    "id": "1782588559161",
+    "roomNumber": "101",
+    "items": [
+      {
+        "id": "water",
+        "name": "Water",
+        "price": 2,
+        "quantity": 2,
+        "lineTotal": 4
+      }
+    ],
+    "total": 4,
+    "status": "new",
+    "createdAt": "2026-06-27T19:29:19.161Z"
+  },
+  {
     "id": "ORD-1782587517707",
     "roomNumber": "101",
     "items": [
@@ -27,8 +43,8 @@
     ],
     "total": 12,
     "notes": "",
-    "status": "new",
+    "status": "completed",
     "createdAt": "2026-06-27T19:11:57.707Z",
-    "updatedAt": "2026-06-27T19:11:57.707Z"
+    "updatedAt": "2026-06-27T19:32:21.638Z"
   }
 ]

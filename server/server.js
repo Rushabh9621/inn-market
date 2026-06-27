@@ -1,101 +1,97 @@
 import express from "express";
+import http from "http";
+import { Server } from "socket.io";
 import cors from "cors";
 import fs from "fs";
 import path from "path";
-import { fileURLToPath } from "url";
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
 
 const app = express();
-const PORT = 3001;
-const dataDir = path.join(__dirname, "data");
-const ordersFile = path.join(dataDir, "orders.json");
+const server = http.createServer(app);
+
+const io = new Server(server, {
+  cors: {
+    origin: "http://localhost:5173",
+    methods: ["GET", "POST", "PATCH"],
+  },
+});
 
 app.use(cors());
 app.use(express.json());
 
-function ensureDataFile() {
-  if (!fs.existsSync(dataDir)) {
-    fs.mkdirSync(dataDir, { recursive: true });
+const DATA_DIR = path.join(process.cwd(), "server", "data");
+const ORDERS_FILE = path.join(DATA_DIR, "orders.json");
+
+if (!fs.existsSync(DATA_DIR)) {
+  fs.mkdirSync(DATA_DIR, { recursive: true });
+}
+
+function loadOrders() {
+  if (!fs.existsSync(ORDERS_FILE)) {
+    fs.writeFileSync(ORDERS_FILE, JSON.stringify([], null, 2));
   }
 
-  if (!fs.existsSync(ordersFile)) {
-    fs.writeFileSync(ordersFile, JSON.stringify([], null, 2));
-  }
+  const data = fs.readFileSync(ORDERS_FILE, "utf-8");
+  return JSON.parse(data || "[]");
 }
 
-function readOrders() {
-  ensureDataFile();
-  const raw = fs.readFileSync(ordersFile, "utf8");
-  return JSON.parse(raw || "[]");
+function saveOrders(orders) {
+  fs.writeFileSync(ORDERS_FILE, JSON.stringify(orders, null, 2));
 }
 
-function writeOrders(orders) {
-  ensureDataFile();
-  fs.writeFileSync(ordersFile, JSON.stringify(orders, null, 2));
+function getLastTwoDaysOrders(orders) {
+  const twoDaysAgo = Date.now() - 2 * 24 * 60 * 60 * 1000;
+
+  return orders.filter((order) => {
+    return new Date(order.createdAt).getTime() >= twoDaysAgo;
+  });
 }
 
-app.get("/api/health", (req, res) => {
-  res.json({ ok: true, app: "The Inn At Clinton Market API" });
-});
+let orders = loadOrders();
 
 app.get("/api/orders", (req, res) => {
-  const orders = readOrders();
-  res.json(orders.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)));
+  res.json(getLastTwoDaysOrders(orders));
+});
+
+app.get("/api/orders/all", (req, res) => {
+  res.json(orders);
 });
 
 app.post("/api/orders", (req, res) => {
-  const { roomNumber, items, total, notes } = req.body;
-
-  if (!roomNumber || !Array.isArray(items) || items.length === 0) {
-    return res.status(400).json({ error: "Room number and at least one item are required." });
-  }
-
-  const orders = readOrders();
   const order = {
-    id: `ORD-${Date.now()}`,
-    roomNumber: String(roomNumber).trim(),
-    items,
-    total: Number(total || 0),
-    notes: notes || "",
+    id: Date.now().toString(),
+    roomNumber: req.body.roomNumber,
+    items: req.body.items,
+    total: req.body.total,
     status: "new",
     createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString()
   };
 
-  orders.push(order);
-  writeOrders(orders);
+  orders.unshift(order);
+  saveOrders(orders);
+
+  io.emit("ordersUpdated", getLastTwoDaysOrders(orders));
+
   res.status(201).json(order);
 });
 
 app.patch("/api/orders/:id", (req, res) => {
-  const { id } = req.params;
-  const { status } = req.body;
-  const allowedStatuses = ["new", "ready", "completed"];
+  orders = orders.map((order) =>
+    order.id === req.params.id
+      ? { ...order, status: req.body.status, updatedAt: new Date().toISOString() }
+      : order
+  );
 
-  if (!allowedStatuses.includes(status)) {
-    return res.status(400).json({ error: "Invalid status." });
-  }
+  saveOrders(orders);
 
-  const orders = readOrders();
-  const index = orders.findIndex((order) => order.id === id);
+  io.emit("ordersUpdated", getLastTwoDaysOrders(orders));
 
-  if (index === -1) {
-    return res.status(404).json({ error: "Order not found." });
-  }
-
-  orders[index] = {
-    ...orders[index],
-    status,
-    updatedAt: new Date().toISOString()
-  };
-
-  writeOrders(orders);
-  res.json(orders[index]);
+  res.json({ success: true });
 });
 
-app.listen(PORT, () => {
-  ensureDataFile();
-  console.log(`Inn Market API running at http://localhost:${PORT}`);
+io.on("connection", () => {
+  console.log("Dashboard connected");
+});
+
+server.listen(3001, () => {
+  console.log("Inn Market API running at http://localhost:3001");
 });
