@@ -5,6 +5,7 @@ import cors from "cors";
 import { initializeDatabase } from "./database/database.js";
 import productRoutes from "./routes/products.js";
 import createOrderRoutes from "./routes/orders.js";
+import inventoryRoutes from "./routes/inventory.js";
 
 const app = express();
 const server = http.createServer(app);
@@ -23,6 +24,7 @@ initializeDatabase();
 
 app.use("/api", productRoutes);
 app.use("/api", createOrderRoutes(io));
+app.use("/api", inventoryRoutes);
 
 io.on("connection", () => {
   console.log("Dashboard connected");
