@@ -1,15 +1,9 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import logo from "../assets/logo.png";
-import { createOrder } from "../services/api";
-
-const products = [
-  { name: "Water", price: 2, icon: "💧" },
-  { name: "Coke", price: 2, icon: "🥤" },
-  { name: "Pepsi", price: 2, icon: "🥤" },
-  { name: "Mountain Dew", price: 2, icon: "🥤" },
-];
+import { API_URL, createOrder } from "../services/api";
 
 export default function GuestPage() {
+  const [products, setProducts] = useState([]);
   const [roomNumber, setRoomNumber] = useState("");
   const [quantities, setQuantities] = useState({});
   const [showReview, setShowReview] = useState(false);
@@ -17,18 +11,28 @@ export default function GuestPage() {
   const [lastOrder, setLastOrder] = useState(null);
   const [error, setError] = useState("");
 
-  const changeQty = (name, amount) => {
+  async function loadProducts() {
+    const res = await fetch(`${API_URL}/api/products`);
+    const data = await res.json();
+    setProducts(data);
+  }
+
+  useEffect(() => {
+    loadProducts();
+  }, []);
+
+  const changeQty = (id, amount) => {
     setQuantities((prev) => ({
       ...prev,
-      [name]: Math.max((prev[name] || 0) + amount, 0),
+      [id]: Math.max((prev[id] || 0) + amount, 0),
     }));
   };
 
   const items = products
     .map((p) => ({
       name: p.name,
-      price: p.price,
-      quantity: quantities[p.name] || 0,
+      price: Number(p.price),
+      quantity: quantities[p.id] || 0,
     }))
     .filter((item) => item.quantity > 0);
 
@@ -78,6 +82,7 @@ export default function GuestPage() {
     setSubmitted(false);
     setLastOrder(null);
     setError("");
+    loadProducts();
   };
 
   if (submitted && lastOrder) {
@@ -115,7 +120,7 @@ export default function GuestPage() {
         <h1>The Inn At Clinton Market</h1>
 
         <p className="subtitle">
-          Order drinks from your room and pick them up at the Front Desk.
+          Order from your room and pick up at the Front Desk.
         </p>
 
         <div className="info-box">
@@ -130,24 +135,24 @@ export default function GuestPage() {
         />
 
         <div className="section-header">
-          <h2>Drinks</h2>
+          <h2>Products</h2>
           <span>{selectedCount} selected</span>
         </div>
 
         {products.map((product) => (
-          <div className="product" key={product.name}>
+          <div className="product" key={product.id}>
             <div className="product-left">
-              <div className="product-icon">{product.icon}</div>
+              <div className="product-icon">{product.icon || "🥤"}</div>
               <div>
                 <strong>{product.name}</strong>
-                <span>${product.price.toFixed(2)}</span>
+                <span>${Number(product.price).toFixed(2)}</span>
               </div>
             </div>
 
             <div className="qty">
-              <button onClick={() => changeQty(product.name, -1)}>-</button>
-              <span>{quantities[product.name] || 0}</span>
-              <button onClick={() => changeQty(product.name, 1)}>+</button>
+              <button onClick={() => changeQty(product.id, -1)}>-</button>
+              <span>{quantities[product.id] || 0}</span>
+              <button onClick={() => changeQty(product.id, 1)}>+</button>
             </div>
           </div>
         ))}
@@ -183,7 +188,10 @@ export default function GuestPage() {
               {error && <div className="error-box">{error}</div>}
 
               <div className="review-actions">
-                <button className="secondary-button" onClick={() => setShowReview(false)}>
+                <button
+                  className="secondary-button"
+                  onClick={() => setShowReview(false)}
+                >
                   Cancel
                 </button>
                 <button className="primary-button" onClick={confirmOrder}>
