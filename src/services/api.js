@@ -65,3 +65,19 @@ export async function deleteProduct(id) {
 
   return res.json();
 }
+export async function getInventory() {
+  const res = await fetch(`${API_URL}/api/inventory`);
+  return res.json();
+}
+
+export async function restockProduct(id, quantity) {
+  const res = await fetch(`${API_URL}/api/inventory/${id}/restock`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ quantity }),
+  });
+
+  return res.json();
+}
