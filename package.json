@@ -7,6 +7,7 @@
   },
   "dependencies": {
     "@vitejs/plugin-react": "latest",
+    "better-sqlite3": "^12.11.1",
     "cors": "latest",
     "express": "latest",
     "react": "latest",
