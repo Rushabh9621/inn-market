@@ -4,6 +4,7 @@ import { Server } from "socket.io";
 import cors from "cors";
 import fs from "fs";
 import path from "path";
+import Database from "better-sqlite3";
 
 const app = express();
 const server = http.createServer(app);
@@ -19,71 +20,109 @@ app.use(cors());
 app.use(express.json());
 
 const DATA_DIR = path.join(process.cwd(), "server", "data");
-const ORDERS_FILE = path.join(DATA_DIR, "orders.json");
 
 if (!fs.existsSync(DATA_DIR)) {
   fs.mkdirSync(DATA_DIR, { recursive: true });
 }
 
-function loadOrders() {
-  if (!fs.existsSync(ORDERS_FILE)) {
-    fs.writeFileSync(ORDERS_FILE, JSON.stringify([], null, 2));
-  }
+const db = new Database(path.join(DATA_DIR, "inn-market.db"));
 
-  const data = fs.readFileSync(ORDERS_FILE, "utf-8");
-  return JSON.parse(data || "[]");
+db.exec(`
+  CREATE TABLE IF NOT EXISTS orders (
+    id TEXT PRIMARY KEY,
+    roomNumber TEXT NOT NULL,
+    total REAL NOT NULL,
+    status TEXT NOT NULL,
+    createdAt TEXT NOT NULL,
+    updatedAt TEXT
+  );
+
+  CREATE TABLE IF NOT EXISTS order_items (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    orderId TEXT NOT NULL,
+    name TEXT NOT NULL,
+    price REAL NOT NULL,
+    quantity INTEGER NOT NULL,
+    FOREIGN KEY (orderId) REFERENCES orders(id)
+  );
+`);
+
+function formatOrder(row) {
+  const items = db
+    .prepare("SELECT name, price, quantity FROM order_items WHERE orderId = ?")
+    .all(row.id);
+
+  return {
+    id: row.id,
+    roomNumber: row.roomNumber,
+    total: row.total,
+    status: row.status,
+    createdAt: row.createdAt,
+    updatedAt: row.updatedAt,
+    items,
+  };
 }
 
-function saveOrders(orders) {
-  fs.writeFileSync(ORDERS_FILE, JSON.stringify(orders, null, 2));
+function getLastTwoDaysOrders() {
+  const twoDaysAgo = new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString();
+
+  const rows = db
+    .prepare("SELECT * FROM orders WHERE createdAt >= ? ORDER BY createdAt DESC")
+    .all(twoDaysAgo);
+
+  return rows.map(formatOrder);
 }
-
-function getLastTwoDaysOrders(orders) {
-  const twoDaysAgo = Date.now() - 2 * 24 * 60 * 60 * 1000;
-
-  return orders.filter((order) => {
-    return new Date(order.createdAt).getTime() >= twoDaysAgo;
-  });
-}
-
-let orders = loadOrders();
 
 app.get("/api/orders", (req, res) => {
-  res.json(getLastTwoDaysOrders(orders));
+  res.json(getLastTwoDaysOrders());
 });
 
 app.get("/api/orders/all", (req, res) => {
-  res.json(orders);
+  const rows = db.prepare("SELECT * FROM orders ORDER BY createdAt DESC").all();
+  res.json(rows.map(formatOrder));
 });
 
 app.post("/api/orders", (req, res) => {
-  const order = {
-    id: Date.now().toString(),
-    roomNumber: req.body.roomNumber,
-    items: req.body.items,
-    total: req.body.total,
-    status: "new",
-    createdAt: new Date().toISOString(),
-  };
+  const id = Date.now().toString();
+  const createdAt = new Date().toISOString();
 
-  orders.unshift(order);
-  saveOrders(orders);
+  const insertOrder = db.prepare(`
+    INSERT INTO orders (id, roomNumber, total, status, createdAt)
+    VALUES (?, ?, ?, ?, ?)
+  `);
 
-  io.emit("ordersUpdated", getLastTwoDaysOrders(orders));
+  const insertItem = db.prepare(`
+    INSERT INTO order_items (orderId, name, price, quantity)
+    VALUES (?, ?, ?, ?)
+  `);
+
+  const transaction = db.transaction(() => {
+    insertOrder.run(id, req.body.roomNumber, req.body.total, "new", createdAt);
+
+    req.body.items.forEach((item) => {
+      insertItem.run(id, item.name, item.price, item.quantity);
+    });
+  });
+
+  transaction();
+
+  const order = formatOrder(
+    db.prepare("SELECT * FROM orders WHERE id = ?").get(id)
+  );
+
+  io.emit("ordersUpdated", getLastTwoDaysOrders());
 
   res.status(201).json(order);
 });
 
 app.patch("/api/orders/:id", (req, res) => {
-  orders = orders.map((order) =>
-    order.id === req.params.id
-      ? { ...order, status: req.body.status, updatedAt: new Date().toISOString() }
-      : order
-  );
+  db.prepare(`
+    UPDATE orders
+    SET status = ?, updatedAt = ?
+    WHERE id = ?
+  `).run(req.body.status, new Date().toISOString(), req.params.id);
 
-  saveOrders(orders);
-
-  io.emit("ordersUpdated", getLastTwoDaysOrders(orders));
+  io.emit("ordersUpdated", getLastTwoDaysOrders());
 
   res.json({ success: true });
 });
