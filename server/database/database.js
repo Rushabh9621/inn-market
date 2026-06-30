@@ -53,9 +53,43 @@ export function initializeDatabase() {
       user TEXT NOT NULL,
       createdAt TEXT NOT NULL
     );
+        CREATE TABLE IF NOT EXISTS rooms (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      roomNumber TEXT NOT NULL UNIQUE,
+      active INTEGER NOT NULL DEFAULT 1,
+      createdAt TEXT NOT NULL,
+      updatedAt TEXT
+    );
   `);
 
   const productCount = db.prepare("SELECT COUNT(*) as count FROM products").get().count;
+  const roomCount = db.prepare(
+  "SELECT COUNT(*) as count FROM rooms"
+).get().count;
+
+if (roomCount === 0) {
+  const insertRoom = db.prepare(`
+    INSERT INTO rooms (roomNumber, active, createdAt)
+    VALUES (?, ?, ?)
+  `);
+
+  const now = new Date().toISOString();
+
+  const rooms = [
+    "100","101","102","103","104","105","106","107",
+    "108","109","110","111","112","113","114","115",
+    "116","117","118","119","120","122","124","200",
+    "201","202","203","204","205","206","207","208",
+    "209","210","211","212","213","214","215","216",
+    "217","218","219","220","221","222","224","226",
+    "227","228"
+
+  ];
+
+  rooms.forEach((room) => {
+    insertRoom.run(room, 1, now);
+  });
+}
 
   if (productCount === 0) {
     const insertProduct = db.prepare(`
