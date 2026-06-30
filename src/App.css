@@ -328,8 +328,9 @@ input {
   border-radius: 26px;
   padding: 26px;
   box-shadow: 0 18px 45px rgba(0, 0, 0, 0.08);
-}
 
+  margin-bottom: 30px;
+}
 .dashboard-title {
   display: flex;
   justify-content: space-between;
