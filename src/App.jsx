@@ -1,3 +1,4 @@
+import { BrowserRouter, Routes, Route } from "react-router-dom";
 import "./App.css";
 import GuestPage from "./pages/GuestPage";
 import Dashboard from "./pages/Dashboard";
@@ -5,21 +6,16 @@ import Admin from "./pages/Admin";
 import Inventory from "./pages/Inventory";
 
 function App() {
-  const path = window.location.pathname;
-
-  if (path === "/dashboard") {
-    return <Dashboard />;
-  }
-
-  if (path === "/admin") {
-    return <Admin />;
-  }
-
-  if (path === "/inventory") {
-    return <Inventory />;
-  }
-
-  return <GuestPage />;
+  return (
+    <BrowserRouter>
+      <Routes>
+        <Route path="/" element={<GuestPage />} />
+        <Route path="/dashboard" element={<Dashboard />} />
+        <Route path="/admin" element={<Admin />} />
+        <Route path="/inventory" element={<Inventory />} />
+      </Routes>
+    </BrowserRouter>
+  );
 }
 
 export default App;
