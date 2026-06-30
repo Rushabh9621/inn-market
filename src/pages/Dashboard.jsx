@@ -4,17 +4,27 @@ import ManagementLayout from "../layouts/ManagementLayout";
 import Sidebar from "../components/Sidebar";
 import { API_URL, getOrders, updateOrderStatus } from "../services/api";
 import OrdersSummaryWidget from "../components/OrdersSummaryWidget";
+import InventoryAlertWidget from "../components/InventoryAlertWidget";
+import { getInventory } from "../services/api";
+import RecentActivityWidget from "../components/RecentActivityWidget";
+import DailyClosingWidget from "../components/DailyClosingWidget";
 
 export default function Dashboard() {
   const [orders, setOrders] = useState([]);
+  const [inventory, setInventory] = useState([]);
 
   async function loadOrders() {
     const data = await getOrders();
     setOrders(data);
   }
+  async function loadInventory() {
+  const data = await getInventory();
+  setInventory(data);
+}
 
   useEffect(() => {
     loadOrders();
+    loadInventory();
 
     const socket = io(API_URL);
 
@@ -42,6 +52,9 @@ export default function Dashboard() {
       sidebar={<Sidebar activePage="orders" />}
     >
       <OrdersSummaryWidget orders={orders} />
+      <InventoryAlertWidget items={inventory} />
+      <RecentActivityWidget />
+      <DailyClosingWidget orders={orders} inventory={inventory} />
       <div className="dashboard-grid">
         <div className="dashboard-card">
           <div className="dashboard-title">
