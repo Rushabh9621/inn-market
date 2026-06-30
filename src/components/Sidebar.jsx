@@ -10,21 +10,24 @@ export default function Sidebar({ activePage }) {
       </div>
 
       <nav className="sidebar-nav">
-        <button className={activePage === "products" ? "active" : ""}>
+        <a className={activePage === "products" ? "active" : ""} href="/admin">
           🥤 Products
-        </button>
+        </a>
 
-        <button className={activePage === "inventory" ? "active" : ""}>
+        <a className={activePage === "inventory" ? "active" : ""} href="/inventory">
           📊 Inventory
-        </button>
+        </a>
 
-        <button disabled>📦 Orders</button>
-        <button disabled>📈 Reports</button>
-        <button disabled>📱 QR Codes</button>
-        <button disabled>⚙ Settings</button>
+        <a className={activePage === "orders" ? "active" : ""} href="/dashboard">
+          📦 Orders
+        </a>
+
+        <span>📈 Reports</span>
+        <span>📱 QR Codes</span>
+        <span>⚙ Settings</span>
       </nav>
 
-      <div className="sidebar-footer">Version 1.0 Preview</div>
+      <div className="sidebar-footer">Version 0.10.0</div>
     </aside>
   );
 }

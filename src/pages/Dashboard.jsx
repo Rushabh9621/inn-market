@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { io } from "socket.io-client";
-import logo from "../assets/logo.png";
+import ManagementLayout from "../layouts/ManagementLayout";
+import Sidebar from "../components/Sidebar";
 import { API_URL, getOrders, updateOrderStatus } from "../services/api";
 
 export default function Dashboard() {
@@ -20,27 +21,25 @@ export default function Dashboard() {
       setOrders(updatedOrders);
     });
 
-    return () => socket.disconnect();
+    return () => {
+      socket.disconnect();
+    };
   }, []);
 
-  async function handleStatus(id, status) {
+  async function changeStatus(id, status) {
     await updateOrderStatus(id, status);
+    loadOrders();
   }
 
   const activeOrders = orders.filter((order) => order.status !== "completed");
   const completedOrders = orders.filter((order) => order.status === "completed");
 
   return (
-    <div className="dashboard-page">
-      <div className="dashboard-header">
-        <div>
-          <div className="eyebrow">Front Desk</div>
-          <h1>The Inn At Clinton Market</h1>
-        </div>
-
-        <img src={logo} className="dashboard-logo" alt="The Inn At Clinton" />
-      </div>
-
+    <ManagementLayout
+      title="Orders"
+      subtitle="Front Desk"
+      sidebar={<Sidebar activePage="orders" />}
+    >
       <div className="dashboard-grid">
         <div className="dashboard-card">
           <div className="dashboard-title">
@@ -56,16 +55,16 @@ export default function Dashboard() {
             <div className="order-card" key={order.id}>
               <div className="order-top">
                 <div>
-                  <strong>Room {order.roomNumber}</strong>
-                  <small>
+                  <h3>Room {order.roomNumber}</h3>
+                  <span>
                     {new Date(order.createdAt).toLocaleTimeString([], {
                       hour: "2-digit",
                       minute: "2-digit",
                     })}
-                  </small>
+                  </span>
                 </div>
 
-                <strong>${order.total.toFixed(2)}</strong>
+                <strong>${Number(order.total).toFixed(2)}</strong>
               </div>
 
               <div className="order-items">
@@ -77,15 +76,13 @@ export default function Dashboard() {
               </div>
 
               <div className="order-actions">
-                {order.status === "new" && (
-                  <button onClick={() => handleStatus(order.id, "ready")}>
-                    Mark Ready
-                  </button>
-                )}
+                <button onClick={() => changeStatus(order.id, "ready")}>
+                  Mark Ready
+                </button>
 
                 <button
                   className="dark-button"
-                  onClick={() => handleStatus(order.id, "completed")}
+                  onClick={() => changeStatus(order.id, "completed")}
                 >
                   Complete
                 </button>
@@ -105,13 +102,13 @@ export default function Dashboard() {
           )}
 
           {completedOrders.map((order) => (
-            <div className="completed-order" key={order.id}>
+            <div className="completed-row" key={order.id}>
               <span>Room {order.roomNumber}</span>
-              <strong>${order.total.toFixed(2)}</strong>
+              <strong>${Number(order.total).toFixed(2)}</strong>
             </div>
           ))}
         </div>
       </div>
-    </div>
+    </ManagementLayout>
   );
 }
