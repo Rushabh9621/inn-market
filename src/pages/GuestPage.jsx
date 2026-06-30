@@ -18,8 +18,15 @@ export default function GuestPage() {
   }
 
   useEffect(() => {
-    loadProducts();
-  }, []);
+  loadProducts();
+
+  const params = new URLSearchParams(window.location.search);
+  const room = params.get("room");
+
+  if (room) {
+    setRoomNumber(room);
+  }
+}, []);
 
   const changeQty = (id, amount) => {
     setQuantities((prev) => ({
@@ -129,10 +136,11 @@ export default function GuestPage() {
 
         <label>Room Number</label>
         <input
-          value={roomNumber}
-          onChange={(e) => setRoomNumber(e.target.value)}
-          placeholder="Example: 214"
-        />
+  value={roomNumber}
+  onChange={(e) => setRoomNumber(e.target.value)}
+  placeholder="Example: 214"
+  readOnly={new URLSearchParams(window.location.search).has("room")}
+/>
 
         <div className="section-header">
           <h2>Products</h2>
