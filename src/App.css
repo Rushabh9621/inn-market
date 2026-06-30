@@ -910,3 +910,31 @@ input {
 .qr-actions {
   margin-top: 16px;
 }
+.qr-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+@media print {
+
+  body {
+    background: white !important;
+  }
+
+  .management-sidebar,
+  .dashboard-header,
+  .qr-toolbar {
+    display: none !important;
+  }
+
+  .rooms-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .room-card {
+    page-break-inside: avoid;
+    break-inside: avoid;
+    border: 2px solid black;
+  }
+}

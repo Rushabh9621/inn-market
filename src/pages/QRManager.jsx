@@ -24,18 +24,20 @@ export default function QRManager() {
       subtitle="Management Console"
       sidebar={<Sidebar activePage="qrcodes" />}
     >
-      <div className="dashboard-card">
-        <div className="dashboard-title">
-          <h2>Room QR Codes</h2>
-          <span>{activeRooms.length}</span>
-        </div>
+      <div className="dashboard-title">
+  <h2>Room QR Codes</h2>
 
-        <div className="rooms-grid">
-          {activeRooms.map((room) => (
-            <QRCard key={room.id} room={room} />
-          ))}
-        </div>
-      </div>
+  <div className="qr-toolbar">
+    <button
+      className="primary-button"
+      onClick={() => window.print()}
+    >
+      🖨 Print All QR Cards
+    </button>
+
+    <span>{activeRooms.length}</span>
+  </div>
+</div>
     </ManagementLayout>
   );
 }
