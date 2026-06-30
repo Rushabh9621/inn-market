@@ -81,3 +81,7 @@ export async function restockProduct(id, quantity) {
 
   return res.json();
 }
+export async function getInventoryHistory() {
+  const res = await fetch(`${API_URL}/api/inventory/history`);
+  return res.json();
+}

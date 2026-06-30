@@ -811,3 +811,29 @@ input {
 .restock-box .btn:hover {
   background: #3528d8 !important;
 }
+.activity-card {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border: 1px solid #dfe5f2;
+  border-radius: 18px;
+  padding: 16px;
+  margin-bottom: 12px;
+  background: #ffffff;
+}
+
+.activity-card strong {
+  display: block;
+  font-size: 18px;
+  color: #111827;
+}
+
+.activity-card span {
+  display: block;
+  color: #6b7280;
+  margin-top: 4px;
+}
+
+.activity-right {
+  text-align: right;
+}
