@@ -3,6 +3,7 @@ import { io } from "socket.io-client";
 import ManagementLayout from "../layouts/ManagementLayout";
 import Sidebar from "../components/Sidebar";
 import { API_URL, getOrders, updateOrderStatus } from "../services/api";
+import OrdersSummaryWidget from "../components/OrdersSummaryWidget";
 
 export default function Dashboard() {
   const [orders, setOrders] = useState([]);
@@ -40,6 +41,7 @@ export default function Dashboard() {
       subtitle="Front Desk"
       sidebar={<Sidebar activePage="orders" />}
     >
+      <OrdersSummaryWidget orders={orders} />
       <div className="dashboard-grid">
         <div className="dashboard-card">
           <div className="dashboard-title">
