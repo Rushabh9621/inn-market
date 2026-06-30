@@ -756,3 +756,58 @@ input {
   opacity: 0.5;
   cursor: not-allowed;
 }
+/* =========================
+   Shared Button Component
+========================= */
+
+.btn {
+  border: none;
+  border-radius: 14px;
+  padding: 14px 20px;
+  font-size: 16px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn:hover {
+  transform: translateY(-1px);
+}
+
+.btn-primary {
+  background: #4338f2;
+  color: white;
+}
+
+.btn-primary:hover {
+  background: #3528d8;
+}
+
+.btn-secondary {
+  background: #eef2ff;
+  color: #4338f2;
+}
+
+.btn-danger {
+  background: #ef4444;
+  color: white;
+}
+
+.btn-success {
+  background: #22c55e;
+  color: white;
+}
+.restock-box .btn {
+  border: none !important;
+  border-radius: 14px !important;
+  padding: 14px 20px !important;
+  font-size: 16px !important;
+  font-weight: 800 !important;
+  cursor: pointer !important;
+  background: #4338f2 !important;
+  color: white !important;
+}
+
+.restock-box .btn:hover {
+  background: #3528d8 !important;
+}

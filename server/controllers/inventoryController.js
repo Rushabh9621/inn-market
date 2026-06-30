@@ -1,11 +1,8 @@
 import { db } from "../database/database.js";
-
-function getStatus(stock) {
-  if (stock <= 0) return "Out";
-  if (stock <= 5) return "Critical";
-  if (stock <= 20) return "Low";
-  return "Healthy";
-}
+import {
+  changeProductStock,
+  getStockStatus,
+} from "../services/inventoryService.js";
 
 export function getInventory(req, res) {
   const products = db
@@ -13,7 +10,7 @@ export function getInventory(req, res) {
     .all()
     .map((product) => ({
       ...product,
-      status: getStatus(Number(product.stock)),
+      status: getStockStatus(Number(product.stock)),
     }));
 
   res.json(products);
@@ -27,27 +24,27 @@ export function restockProduct(req, res) {
     return res.status(400).json({ error: "Quantity must be greater than 0" });
   }
 
-  const product = db.prepare("SELECT * FROM products WHERE id = ?").get(productId);
+  try {
+    const updatedProduct = changeProductStock({
+      productId,
+      quantityChanged: quantity,
+      reason: "Restock",
+      reference: "Manual",
+      user: "Rushabh",
+    });
 
-  if (!product) {
-    return res.status(404).json({ error: "Product not found" });
+    res.json({
+      ...updatedProduct,
+      status: getStockStatus(Number(updatedProduct.stock)),
+    });
+  } catch (error) {
+    res.status(404).json({ error: error.message });
   }
+}
+export function getInventoryHistory(req, res) {
+  const history = db
+    .prepare("SELECT * FROM inventory_history ORDER BY createdAt DESC LIMIT 100")
+    .all();
 
-  const newStock = Number(product.stock) + quantity;
-  const now = new Date().toISOString();
-
-  db.prepare(`
-    UPDATE products
-    SET stock = ?, updatedAt = ?
-    WHERE id = ?
-  `).run(newStock, now, productId);
-
-  const updatedProduct = db
-    .prepare("SELECT * FROM products WHERE id = ?")
-    .get(productId);
-
-  res.json({
-    ...updatedProduct,
-    status: getStatus(Number(updatedProduct.stock)),
-  });
+  res.json(history);
 }

@@ -41,6 +41,18 @@ export function initializeDatabase() {
       createdAt TEXT NOT NULL,
       updatedAt TEXT
     );
+        CREATE TABLE IF NOT EXISTS inventory_history (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      productId INTEGER NOT NULL,
+      productName TEXT NOT NULL,
+      previousStock INTEGER NOT NULL,
+      newStock INTEGER NOT NULL,
+      quantityChanged INTEGER NOT NULL,
+      reason TEXT NOT NULL,
+      reference TEXT,
+      user TEXT NOT NULL,
+      createdAt TEXT NOT NULL
+    );
   `);
 
   const productCount = db.prepare("SELECT COUNT(*) as count FROM products").get().count;
