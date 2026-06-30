@@ -5,6 +5,7 @@ import { API_URL, createOrder } from "../services/api";
 export default function GuestPage() {
   const [products, setProducts] = useState([]);
   const [roomNumber, setRoomNumber] = useState("");
+  const [isQrRoom, setIsQrRoom] = useState(false);
   const [quantities, setQuantities] = useState({});
   const [showReview, setShowReview] = useState(false);
   const [submitted, setSubmitted] = useState(false);
@@ -18,15 +19,16 @@ export default function GuestPage() {
   }
 
   useEffect(() => {
-  loadProducts();
+    loadProducts();
 
-  const params = new URLSearchParams(window.location.search);
-  const room = params.get("room");
+    const params = new URLSearchParams(window.location.search);
+    const room = params.get("room");
 
-  if (room) {
-    setRoomNumber(room);
-  }
-}, []);
+    if (room) {
+      setRoomNumber(room);
+      setIsQrRoom(true);
+    }
+  }, []);
 
   const changeQty = (id, amount) => {
     setQuantities((prev) => ({
@@ -83,13 +85,16 @@ export default function GuestPage() {
   };
 
   const startNewOrder = () => {
-    setRoomNumber("");
     setQuantities({});
     setShowReview(false);
     setSubmitted(false);
     setLastOrder(null);
     setError("");
     loadProducts();
+
+    if (!isQrRoom) {
+      setRoomNumber("");
+    }
   };
 
   if (submitted && lastOrder) {
@@ -134,13 +139,24 @@ export default function GuestPage() {
           Pickup only • Payment at Front Desk • Cash or Card
         </div>
 
-        <label>Room Number</label>
-        <input
-  value={roomNumber}
-  onChange={(e) => setRoomNumber(e.target.value)}
-  placeholder="Example: 214"
-  readOnly={new URLSearchParams(window.location.search).has("room")}
-/>
+        {isQrRoom ? (
+          <div className="verified-room">
+            <div className="verified-icon">✅</div>
+            <div>
+              <strong>Room {roomNumber} Verified</strong>
+              <span>Your room was detected from the QR code.</span>
+            </div>
+          </div>
+        ) : (
+          <>
+            <label>Room Number</label>
+            <input
+              value={roomNumber}
+              onChange={(e) => setRoomNumber(e.target.value)}
+              placeholder="Example: 214"
+            />
+          </>
+        )}
 
         <div className="section-header">
           <h2>Products</h2>
