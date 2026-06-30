@@ -7,6 +7,7 @@ import productRoutes from "./routes/products.js";
 import createOrderRoutes from "./routes/orders.js";
 import inventoryRoutes from "./routes/inventory.js";
 import roomRoutes from "./routes/rooms.js";
+import qrRoutes from "./routes/qr.js";
 
 const app = express();
 const server = http.createServer(app);
@@ -27,6 +28,7 @@ app.use("/api", productRoutes);
 app.use("/api", createOrderRoutes(io));
 app.use("/api", inventoryRoutes);
 app.use("/api", roomRoutes);
+app.use("/api", qrRoutes);
 
 io.on("connection", () => {
   console.log("Dashboard connected");

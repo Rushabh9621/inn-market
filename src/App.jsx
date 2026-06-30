@@ -4,6 +4,8 @@ import GuestPage from "./pages/GuestPage";
 import Dashboard from "./pages/Dashboard";
 import Admin from "./pages/Admin";
 import Inventory from "./pages/Inventory";
+import Rooms from "./pages/Rooms";
+import QRManager from "./pages/QRManager";
 
 function App() {
   return (
@@ -13,6 +15,8 @@ function App() {
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/admin" element={<Admin />} />
         <Route path="/inventory" element={<Inventory />} />
+        <Route path="/rooms" element={<Rooms />} />
+        <Route path="/qrcodes" element={<QRManager />} />
       </Routes>
     </BrowserRouter>
   );

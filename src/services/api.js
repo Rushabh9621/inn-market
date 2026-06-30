@@ -85,3 +85,11 @@ export async function getInventoryHistory() {
   const res = await fetch(`${API_URL}/api/inventory/history`);
   return res.json();
 }
+export async function getRooms() {
+  const res = await fetch(`${API_URL}/api/rooms`);
+  return res.json();
+}
+export async function getRoomQRCode(roomNumber) {
+  const res = await fetch(`${API_URL}/api/qr/room/${roomNumber}`);
+  return res.json();
+}

@@ -837,3 +837,50 @@ input {
 .activity-right {
   text-align: right;
 }
+.rooms-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+}
+
+.room-card {
+  border: 1px solid #dfe5f2;
+  border-radius: 18px;
+  padding: 18px;
+  background: white;
+}
+
+.room-card strong {
+  display: block;
+  font-size: 22px;
+  color: #111827;
+}
+
+.room-card span {
+  display: block;
+  margin-top: 6px;
+  color: #166534;
+  font-weight: 700;
+}
+
+.room-url {
+  margin-top: 12px;
+  padding: 10px;
+  background: #f8fafc;
+  border-radius: 12px;
+  color: #4b5563;
+  font-size: 13px;
+  word-break: break-all;
+}
+
+@media (max-width: 1100px) {
+  .rooms-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 700px) {
+  .rooms-grid {
+    grid-template-columns: 1fr;
+  }
+}

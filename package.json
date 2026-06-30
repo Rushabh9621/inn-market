@@ -10,6 +10,7 @@
     "better-sqlite3": "^12.11.1",
     "cors": "latest",
     "express": "latest",
+    "qrcode": "^1.5.4",
     "react": "latest",
     "react-dom": "latest",
     "react-router-dom": "^7.18.1",
