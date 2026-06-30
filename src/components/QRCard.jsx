@@ -15,41 +15,41 @@ export default function QRCard({ room }) {
   }, [room.roomNumber]);
 
   if (!qr) {
-    return (
-      <div className="room-card">
-        Loading Room {room.roomNumber}...
-      </div>
-    );
+    return <div className="room-card">Loading Room {room.roomNumber}...</div>;
   }
 
   return (
-  <div className="room-card qr-card">
-    <div className="qr-room-header">
-      <h3>Room {room.roomNumber}</h3>
-      <span className="stock-badge stock-good">Ready</span>
+    <div className="room-card qr-card">
+      <div className="qr-hotel-name">The Inn At Clinton</div>
+      <div className="qr-welcome">Welcome!</div>
+
+      <div className="qr-room-number">Room {room.roomNumber}</div>
+
+      <img
+        src={qr.qrDataUrl}
+        alt={`Room ${room.roomNumber}`}
+        className="qr-image"
+      />
+
+      <p className="qr-instructions">Scan to order from your room</p>
+
+      <div className="qr-features">
+        <span>🥤 Drinks</span>
+        <span>🍫 Snacks</span>
+        <span>🪥 Toiletries</span>
+      </div>
+
+      <p className="qr-small-text">
+        Pickup at Front Desk • Pay at Pickup
+      </p>
+
+      <div className="room-url">{qr.guestUrl}</div>
+
+      <div className="qr-actions">
+        <Button onClick={() => navigator.clipboard.writeText(qr.guestUrl)}>
+          Copy Link
+        </Button>
+      </div>
     </div>
-
-    <img
-      src={qr.qrDataUrl}
-      alt={`Room ${room.roomNumber}`}
-      className="qr-image"
-    />
-
-    <p className="qr-instructions">
-      Scan to order from your room.
-    </p>
-
-    <div className="room-url">
-      {qr.guestUrl}
-    </div>
-
-    <div className="qr-actions">
-      <Button
-        onClick={() => navigator.clipboard.writeText(qr.guestUrl)}
-      >
-        Copy Link
-      </Button>
-    </div>
-  </div>
-);
+  );
 }
