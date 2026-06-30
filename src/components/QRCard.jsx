@@ -23,26 +23,33 @@ export default function QRCard({ room }) {
   }
 
   return (
-    <div className="room-card">
+  <div className="room-card qr-card">
+    <div className="qr-room-header">
       <h3>Room {room.roomNumber}</h3>
-
-      <img
-        src={qr.qrDataUrl}
-        alt={`Room ${room.roomNumber}`}
-        className="qr-image"
-      />
-
-      <div className="room-url">
-        {qr.guestUrl}
-      </div>
-
-      <div className="qr-actions">
-        <Button
-          onClick={() => navigator.clipboard.writeText(qr.guestUrl)}
-        >
-          Copy Link
-        </Button>
-      </div>
+      <span className="stock-badge stock-good">Ready</span>
     </div>
-  );
+
+    <img
+      src={qr.qrDataUrl}
+      alt={`Room ${room.roomNumber}`}
+      className="qr-image"
+    />
+
+    <p className="qr-instructions">
+      Scan to order from your room.
+    </p>
+
+    <div className="room-url">
+      {qr.guestUrl}
+    </div>
+
+    <div className="qr-actions">
+      <Button
+        onClick={() => navigator.clipboard.writeText(qr.guestUrl)}
+      >
+        Copy Link
+      </Button>
+    </div>
+  </div>
+);
 }

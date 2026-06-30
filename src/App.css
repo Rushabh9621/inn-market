@@ -884,3 +884,29 @@ input {
     grid-template-columns: 1fr;
   }
 }
+.qr-card {
+  text-align: center;
+}
+
+.qr-room-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.qr-image {
+  width: 220px;
+  margin: 16px auto;
+  display: block;
+}
+
+.qr-instructions {
+  color: #4b5563;
+  font-weight: 700;
+  margin-bottom: 16px;
+}
+
+.qr-actions {
+  margin-top: 16px;
+}
