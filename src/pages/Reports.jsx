@@ -3,6 +3,10 @@ import ManagementLayout from "../layouts/ManagementLayout";
 import Sidebar from "../components/Sidebar";
 import SummaryCard from "../components/SummaryCard";
 import { getInventory, getOrders } from "../services/api";
+import RevenueReport from "../components/reports/RevenueReport";
+import InventoryReport from "../components/reports/InventoryReport";
+import RoomPerformanceReport from "../components/reports/RoomPerformanceReport";
+import TrendsReport from "../components/reports/TrendsReport";
 
 export default function Reports() {
   const [orders, setOrders] = useState([]);
@@ -21,9 +25,7 @@ export default function Reports() {
     load();
   }, []);
 
-  const completedOrders = orders.filter(
-    (order) => order.status === "completed"
-  );
+  const completedOrders = orders.filter((order) => order.status === "completed");
 
   const revenue = completedOrders.reduce(
     (sum, order) => sum + Number(order.total),
@@ -31,9 +33,7 @@ export default function Reports() {
   );
 
   const averageOrder =
-    completedOrders.length === 0
-      ? 0
-      : revenue / completedOrders.length;
+    completedOrders.length === 0 ? 0 : revenue / completedOrders.length;
 
   const lowStock = inventory.filter(
     (item) =>
@@ -41,6 +41,25 @@ export default function Reports() {
       item.status === "Critical" ||
       item.status === "Out"
   ).length;
+
+  const roomStats = {};
+
+  completedOrders.forEach((order) => {
+    if (!roomStats[order.roomNumber]) {
+      roomStats[order.roomNumber] = {
+        room: order.roomNumber,
+        orders: 0,
+        revenue: 0,
+      };
+    }
+
+    roomStats[order.roomNumber].orders += 1;
+    roomStats[order.roomNumber].revenue += Number(order.total);
+  });
+
+  const topRooms = Object.values(roomStats).sort(
+    (a, b) => b.revenue - a.revenue
+  );
 
   return (
     <ManagementLayout
@@ -55,10 +74,7 @@ export default function Reports() {
           color="success"
         />
 
-        <SummaryCard
-          title="Completed Orders"
-          value={completedOrders.length}
-        />
+        <SummaryCard title="Completed Orders" value={completedOrders.length} />
 
         <SummaryCard
           title="Average Order"
@@ -66,105 +82,66 @@ export default function Reports() {
           color="info"
         />
 
-        <SummaryCard
-          title="Inventory Alerts"
-          value={lowStock}
-          color="warning"
-        />
+        <SummaryCard title="Inventory Alerts" value={lowStock} color="warning" />
       </div>
 
       <div className="dashboard-card">
         <div className="dashboard-title">
           <h2>
-  {activeReport === "revenue" && "Revenue Report"}
-  {activeReport === "inventory" && "Inventory Report"}
-  {activeReport === "rooms" && "Room Performance"}
-  {activeReport === "trends" && "Trends"}
-</h2>
+            {activeReport === "revenue" && "Revenue Report"}
+            {activeReport === "inventory" && "Inventory Report"}
+            {activeReport === "rooms" && "Room Performance"}
+            {activeReport === "trends" && "Trends"}
+          </h2>
         </div>
+
         <div className="report-tabs">
-  <button
-    className={activeReport === "revenue" ? "active" : ""}
-    onClick={() => setActiveReport("revenue")}
-  >
-    💰 Revenue
-  </button>
+          <button
+            className={activeReport === "revenue" ? "active" : ""}
+            onClick={() => setActiveReport("revenue")}
+          >
+            💰 Revenue
+          </button>
 
-  <button
-    className={activeReport === "inventory" ? "active" : ""}
-    onClick={() => setActiveReport("inventory")}
-  >
-    📦 Inventory
-  </button>
+          <button
+            className={activeReport === "inventory" ? "active" : ""}
+            onClick={() => setActiveReport("inventory")}
+          >
+            📦 Inventory
+          </button>
 
-  <button
-    className={activeReport === "rooms" ? "active" : ""}
-    onClick={() => setActiveReport("rooms")}
-  >
-    🏨 Rooms
-  </button>
+          <button
+            className={activeReport === "rooms" ? "active" : ""}
+            onClick={() => setActiveReport("rooms")}
+          >
+            🏨 Rooms
+          </button>
 
-  <button
-    className={activeReport === "trends" ? "active" : ""}
-    onClick={() => setActiveReport("trends")}
-  >
-    📈 Trends
-  </button>
-</div>
+          <button
+            className={activeReport === "trends" ? "active" : ""}
+            onClick={() => setActiveReport("trends")}
+          >
+            📈 Trends
+          </button>
+        </div>
 
         {activeReport === "revenue" && (
-  <>
-    <div className="stat-item">
-      <span>Revenue Today</span>
-      <strong>${revenue.toFixed(2)}</strong>
-    </div>
+          <RevenueReport
+            revenue={revenue}
+            completedOrders={completedOrders}
+            averageOrder={averageOrder}
+          />
+        )}
 
-    <div className="stat-item">
-      <span>Completed Orders</span>
-      <strong>{completedOrders.length}</strong>
-    </div>
+        {activeReport === "inventory" && (
+          <InventoryReport inventory={inventory} lowStock={lowStock} />
+        )}
 
-    <div className="stat-item">
-      <span>Average Order Value</span>
-      <strong>${averageOrder.toFixed(2)}</strong>
-    </div>
-  </>
-)}
+        {activeReport === "rooms" && (
+          <RoomPerformanceReport topRooms={topRooms} />
+        )}
 
-{activeReport === "inventory" && (
-  <>
-    <div className="stat-item">
-      <span>Products Needing Restock</span>
-      <strong>{lowStock}</strong>
-    </div>
-
-    <div className="stat-item">
-      <span>Total Products</span>
-      <strong>{inventory.length}</strong>
-    </div>
-
-    <div className="stat-item">
-      <span>Healthy Products</span>
-      <strong>
-        {
-          inventory.filter((item) => item.status === "Healthy").length
-        }
-      </strong>
-    </div>
-  </>
-)}
-
-{activeReport === "rooms" && (
-  <div className="empty">
-    Room performance analytics coming soon...
-  </div>
-)}
-
-{activeReport === "trends" && (
-  <div className="empty">
-    Charts and trends coming soon...
-  </div>
-)}
+        {activeReport === "trends" && <TrendsReport />}
       </div>
     </ManagementLayout>
   );
