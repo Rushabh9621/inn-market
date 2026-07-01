@@ -2,11 +2,11 @@ import { useEffect, useState } from "react";
 import logo from "../assets/logo.png";
 import { API_URL, createOrder } from "../services/api";
 
-const categories = ["All", "Drinks", "Snacks", "Toiletries"];
+const categories = ["Drinks", "Snacks", "Toiletries"];
 
 export default function GuestPage() {
   const [products, setProducts] = useState([]);
-  const [activeCategory, setActiveCategory] = useState("All");
+  const [activeCategory, setActiveCategory] = useState("Drinks");
   const [roomNumber, setRoomNumber] = useState("");
   const [isQrRoom, setIsQrRoom] = useState(false);
   const [quantities, setQuantities] = useState({});
@@ -40,10 +40,9 @@ export default function GuestPage() {
     }));
   };
 
-  const filteredProducts =
-    activeCategory === "All"
-      ? products
-      : products.filter((product) => product.category === activeCategory);
+  const filteredProducts = products.filter(
+  (product) => product.category === activeCategory
+);
 
   const items = products
     .map((p) => ({
@@ -173,7 +172,7 @@ export default function GuestPage() {
               className={activeCategory === category ? "active" : ""}
               onClick={() => setActiveCategory(category)}
             >
-              {category === "All" && "📦 All"}
+              
               {category === "Drinks" && "🥤 Drinks"}
               {category === "Snacks" && "🍫 Snacks"}
               {category === "Toiletries" && "🪥 Toiletries"}
