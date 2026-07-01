@@ -7,11 +7,45 @@ import RevenueReport from "../components/reports/RevenueReport";
 import InventoryReport from "../components/reports/InventoryReport";
 import RoomPerformanceReport from "../components/reports/RoomPerformanceReport";
 import TrendsReport from "../components/reports/TrendsReport";
+import ReportDateFilter from "../components/reports/ReportDateFilter";
+
+function isInSelectedRange(dateString, activeRange) {
+  const date = new Date(dateString);
+  const now = new Date();
+
+  const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  const startOfTomorrow = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1);
+  const startOfYesterday = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 1);
+
+  const dayOfWeek = now.getDay();
+  const startOfWeek = new Date(now.getFullYear(), now.getMonth(), now.getDate() - dayOfWeek);
+
+  const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+
+  if (activeRange === "today") {
+    return date >= startOfToday && date < startOfTomorrow;
+  }
+
+  if (activeRange === "yesterday") {
+    return date >= startOfYesterday && date < startOfToday;
+  }
+
+  if (activeRange === "week") {
+    return date >= startOfWeek && date < startOfTomorrow;
+  }
+
+  if (activeRange === "month") {
+    return date >= startOfMonth && date < startOfTomorrow;
+  }
+
+  return true;
+}
 
 export default function Reports() {
   const [orders, setOrders] = useState([]);
   const [inventory, setInventory] = useState([]);
   const [activeReport, setActiveReport] = useState("revenue");
+  const [activeRange, setActiveRange] = useState("today");
 
   useEffect(() => {
     async function load() {
@@ -25,7 +59,13 @@ export default function Reports() {
     load();
   }, []);
 
-  const completedOrders = orders.filter((order) => order.status === "completed");
+  const filteredOrders = orders.filter((order) =>
+    isInSelectedRange(order.createdAt, activeRange)
+  );
+
+  const completedOrders = filteredOrders.filter(
+    (order) => order.status === "completed"
+  );
 
   const revenue = completedOrders.reduce(
     (sum, order) => sum + Number(order.total),
@@ -69,7 +109,7 @@ export default function Reports() {
     >
       <div className="inventory-summary">
         <SummaryCard
-          title="Today's Revenue"
+          title="Revenue"
           value={`$${revenue.toFixed(2)}`}
           color="success"
         />
@@ -84,6 +124,11 @@ export default function Reports() {
 
         <SummaryCard title="Inventory Alerts" value={lowStock} color="warning" />
       </div>
+
+      <ReportDateFilter
+        activeRange={activeRange}
+        setActiveRange={setActiveRange}
+      />
 
       <div className="dashboard-card">
         <div className="dashboard-title">
