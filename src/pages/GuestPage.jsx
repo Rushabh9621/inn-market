@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import logo from "../assets/logo.png";
 import { API_URL, createOrder } from "../services/api";
+import ProductCard from "../components/guest/ProductCard";
 
 const categories = ["Drinks", "Snacks", "Toiletries"];
 
@@ -187,20 +188,13 @@ export default function GuestPage() {
 
         <div className="guest-product-grid">
           {filteredProducts.map((product) => (
-            <div className="guest-product-card" key={product.id}>
-              <div className="guest-product-brand">
-                {product.icon || "🥤"}
-              </div>
-
-              <strong>{product.name}</strong>
-              <span>${Number(product.price).toFixed(2)}</span>
-
-              <div className="qty guest-qty">
-                <button onClick={() => changeQty(product.id, -1)}>-</button>
-                <span>{quantities[product.id] || 0}</span>
-                <button onClick={() => changeQty(product.id, 1)}>+</button>
-              </div>
-            </div>
+            <ProductCard
+  key={product.id}
+  product={product}
+  quantity={quantities[product.id] || 0}
+  onDecrease={() => changeQty(product.id, -1)}
+  onIncrease={() => changeQty(product.id, 1)}
+/>
           ))}
         </div>
 
