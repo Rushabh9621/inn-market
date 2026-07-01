@@ -8,6 +8,7 @@ import InventoryReport from "../components/reports/InventoryReport";
 import RoomPerformanceReport from "../components/reports/RoomPerformanceReport";
 import TrendsReport from "../components/reports/TrendsReport";
 import ReportDateFilter from "../components/reports/ReportDateFilter";
+import PageHeader from "../components/ui/PageHeader";
 
 function isInSelectedRange(dateString, activeRange) {
   const date = new Date(dateString);
@@ -107,6 +108,11 @@ export default function Reports() {
       subtitle="Reports"
       sidebar={<Sidebar activePage="reports" />}
     >
+        <PageHeader
+  icon="📊"
+  title="Business Reports"
+  subtitle="View revenue, inventory, room performance, and business analytics."
+/>
       <div className="inventory-summary">
         <SummaryCard
           title="Revenue"
