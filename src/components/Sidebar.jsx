@@ -30,7 +30,9 @@ export default function Sidebar({ activePage }) {
           📱 QR Manager
         </a>
 
-        <span>📊 Reports</span>
+        <a className={activePage === "reports" ? "active" : ""} href="/reports">
+  📊 Reports
+</a>
         <span>⚙ Settings</span>
       </nav>
 

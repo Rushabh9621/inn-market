@@ -1109,3 +1109,24 @@ input {
   font-weight: 900 !important;
   color: #111827 !important;
 }
+.report-tabs {
+  display: flex;
+  gap: 14px;
+  margin: 28px 0 30px;
+  flex-wrap: wrap;
+}
+
+.report-tabs button {
+  border: none;
+  border-radius: 16px;
+  padding: 14px 22px;
+  background: white;
+  font-weight: 900;
+  cursor: pointer;
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.06);
+}
+
+.report-tabs button.active {
+  background: #4338f2;
+  color: white;
+}
