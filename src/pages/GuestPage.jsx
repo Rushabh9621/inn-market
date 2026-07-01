@@ -2,8 +2,11 @@ import { useEffect, useState } from "react";
 import logo from "../assets/logo.png";
 import { API_URL, createOrder } from "../services/api";
 
+const categories = ["All", "Drinks", "Snacks", "Toiletries"];
+
 export default function GuestPage() {
   const [products, setProducts] = useState([]);
+  const [activeCategory, setActiveCategory] = useState("All");
   const [roomNumber, setRoomNumber] = useState("");
   const [isQrRoom, setIsQrRoom] = useState(false);
   const [quantities, setQuantities] = useState({});
@@ -36,6 +39,11 @@ export default function GuestPage() {
       [id]: Math.max((prev[id] || 0) + amount, 0),
     }));
   };
+
+  const filteredProducts =
+    activeCategory === "All"
+      ? products
+      : products.filter((product) => product.category === activeCategory);
 
   const items = products
     .map((p) => ({
@@ -103,7 +111,7 @@ export default function GuestPage() {
         <div className="card success-card">
           <img src={logo} className="logo" alt="The Inn At Clinton" />
           <div className="success-icon">✅</div>
-          <div className="eyebrow">Order Sent</div>
+          <div className="eyebrow">Order Received</div>
           <h1>Thank you!</h1>
           <p>Your order has been sent to the Front Desk.</p>
 
@@ -129,7 +137,7 @@ export default function GuestPage() {
         <img src={logo} className="logo" alt="The Inn At Clinton" />
 
         <div className="eyebrow">Guest Market</div>
-        <h1>The Inn At Clinton Market</h1>
+        <h1>Welcome to The Inn At Clinton</h1>
 
         <p className="subtitle">
           Order from your room and pick up at the Front Desk.
@@ -158,28 +166,44 @@ export default function GuestPage() {
           </>
         )}
 
+        <div className="guest-categories">
+          {categories.map((category) => (
+            <button
+              key={category}
+              className={activeCategory === category ? "active" : ""}
+              onClick={() => setActiveCategory(category)}
+            >
+              {category === "All" && "📦 All"}
+              {category === "Drinks" && "🥤 Drinks"}
+              {category === "Snacks" && "🍫 Snacks"}
+              {category === "Toiletries" && "🪥 Toiletries"}
+            </button>
+          ))}
+        </div>
+
         <div className="section-header">
-          <h2>Products</h2>
+          <h2>{activeCategory} Products</h2>
           <span>{selectedCount} selected</span>
         </div>
 
-        {products.map((product) => (
-          <div className="product" key={product.id}>
-            <div className="product-left">
-              <div className="product-icon">{product.icon || "🥤"}</div>
-              <div>
-                <strong>{product.name}</strong>
-                <span>${Number(product.price).toFixed(2)}</span>
+        <div className="guest-product-grid">
+          {filteredProducts.map((product) => (
+            <div className="guest-product-card" key={product.id}>
+              <div className="guest-product-brand">
+                {product.icon || "🥤"}
+              </div>
+
+              <strong>{product.name}</strong>
+              <span>${Number(product.price).toFixed(2)}</span>
+
+              <div className="qty guest-qty">
+                <button onClick={() => changeQty(product.id, -1)}>-</button>
+                <span>{quantities[product.id] || 0}</span>
+                <button onClick={() => changeQty(product.id, 1)}>+</button>
               </div>
             </div>
-
-            <div className="qty">
-              <button onClick={() => changeQty(product.id, -1)}>-</button>
-              <span>{quantities[product.id] || 0}</span>
-              <button onClick={() => changeQty(product.id, 1)}>+</button>
-            </div>
-          </div>
-        ))}
+          ))}
+        </div>
 
         <div className="cart-bar">
           <div>

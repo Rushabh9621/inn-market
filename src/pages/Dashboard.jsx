@@ -8,6 +8,7 @@ import InventoryAlertWidget from "../components/InventoryAlertWidget";
 import { getInventory } from "../services/api";
 import RecentActivityWidget from "../components/RecentActivityWidget";
 import DailyClosingWidget from "../components/DailyClosingWidget";
+import PageHeader from "../components/ui/PageHeader";
 
 export default function Dashboard() {
   const [orders, setOrders] = useState([]);
@@ -47,10 +48,15 @@ export default function Dashboard() {
 
   return (
     <ManagementLayout
-      title="Orders"
-      subtitle="Front Desk"
+      title="Operations Center"
+subtitle="Real-Time Motel Operations"
       sidebar={<Sidebar activePage="orders" />}
     >
+      <PageHeader
+  icon="🏠"
+  title="Operations Center"
+  subtitle="Monitor orders, inventory, and motel activity in real time."
+/>
       <OrdersSummaryWidget orders={orders} />
       <InventoryAlertWidget items={inventory} />
       <RecentActivityWidget />
