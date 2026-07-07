@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import logo from "../assets/logo.png";
 import { API_URL, createOrder } from "../services/api";
 import ProductCard from "../components/guest/ProductCard";
+import StickyCart from "../components/guest/StickyCart";
 
 const categories = ["Drinks", "Snacks", "Toiletries"];
 
@@ -198,13 +199,11 @@ export default function GuestPage() {
           ))}
         </div>
 
-        <div className="cart-bar">
-          <div>
-            <strong>Total</strong>
-            <span>${total.toFixed(2)}</span>
-          </div>
-          <button onClick={reviewOrder}>Review Order</button>
-        </div>
+        <StickyCart
+  selectedCount={selectedCount}
+  total={total}
+  onReview={reviewOrder}
+/>
 
         {showReview && (
           <div className="modal-backdrop">
