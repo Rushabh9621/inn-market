@@ -1,9 +1,14 @@
 import { useEffect, useMemo, useState } from "react";
+import { io } from "socket.io-client";
 import ManagementLayout from "../layouts/ManagementLayout";
 import Sidebar from "../components/Sidebar";
 import SummaryCard from "../components/SummaryCard";
 import InventoryCard from "../components/InventoryCard";
-import { getInventory, restockProduct } from "../services/api";
+import {
+  API_URL,
+  getInventory,
+  restockProduct,
+} from "../services/api";
 
 export default function Inventory() {
   const [items, setItems] = useState([]);
@@ -16,8 +21,18 @@ export default function Inventory() {
   }
 
   useEffect(() => {
+  loadInventory();
+
+  const socket = io(API_URL);
+
+  socket.on("inventoryUpdated", () => {
     loadInventory();
-  }, []);
+  });
+
+  return () => {
+    socket.disconnect();
+  };
+}, []);
 
   async function handleRestock(id) {
     const quantity = Number(restockAmounts[id] || 0);

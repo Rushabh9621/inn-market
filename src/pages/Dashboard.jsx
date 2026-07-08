@@ -83,7 +83,7 @@ const [statusFilter, setStatusFilter] = useState("all");
       }
 
       setOrders(updatedOrders);
-      loadInventory();
+loadInventory();
     });
 
     return () => {
@@ -115,11 +115,13 @@ const filteredOrders = orders.filter((order) => {
 });
 
 const activeOrders = filteredOrders.filter(
-  (order) => order.status !== "completed"
+  (order) =>
+    order.status !== "completed" && order.status !== "cancelled"
 );
 
 const completedOrders = filteredOrders.filter(
-  (order) => order.status === "completed"
+  (order) =>
+    order.status === "completed" || order.status === "cancelled"
 );
 
   return (
@@ -173,8 +175,10 @@ const completedOrders = filteredOrders.filter(
 >
   <option value="all">All Orders</option>
   <option value="new">New Orders</option>
-  <option value="ready">Ready Orders</option>
-  <option value="completed">Completed Orders</option>
+  <option value="preparing">Preparing Orders</option>
+<option value="ready">Ready Orders</option>
+<option value="completed">Completed Orders</option>
+<option value="cancelled">Cancelled Orders</option>
 </select>
 
 <button className="clear-filter-button" onClick={clearOrderFilters}>
@@ -223,17 +227,40 @@ const completedOrders = filteredOrders.filter(
               </div>
 
               <div className="order-actions">
-                <button onClick={() => changeStatus(order.id, "ready")}>
-                  Mark Ready
-                </button>
+  {order.status === "new" && (
+    <button onClick={() => changeStatus(order.id, "preparing")}>
+      Accept Order
+    </button>
+  )}
 
-                <button
-                  className="dark-button"
-                  onClick={() => changeStatus(order.id, "completed")}
-                >
-                  Complete
-                </button>
-              </div>
+  {order.status === "preparing" && (
+    <button onClick={() => changeStatus(order.id, "ready")}>
+      Mark Ready
+    </button>
+  )}
+
+  {order.status === "ready" && (
+  <button
+    className="dark-button"
+    onClick={() => changeStatus(order.id, "completed")}
+  >
+    Picked Up
+  </button>
+)}
+
+{order.status !== "completed" && order.status !== "cancelled" && (
+  <button
+    className="cancel-order-button"
+    onClick={() => {
+      if (confirm(`Cancel order for Room ${order.roomNumber}?`)) {
+        changeStatus(order.id, "cancelled");
+      }
+    }}
+  >
+    Cancel
+  </button>
+)}
+</div>
             </div>
           ))}
         </div>
@@ -250,7 +277,10 @@ const completedOrders = filteredOrders.filter(
 
           {completedOrders.map((order) => (
             <div className="completed-row" key={order.id}>
-              <span>Room {order.roomNumber}</span>
+              <span>
+  Room {order.roomNumber}
+  {order.status === "cancelled" && " — Cancelled"}
+</span>
               <strong>${Number(order.total).toFixed(2)}</strong>
             </div>
           ))}

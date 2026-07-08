@@ -1824,3 +1824,25 @@ input {
   background: #e5e7eb;
   color: #374151;
 }
+.status-badge.preparing {
+  background: #ffedd5;
+  color: #9a3412;
+}
+.status-badge.cancelled {
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+.cancel-order-button {
+  border: none;
+  border-radius: 14px;
+  padding: 13px 18px;
+  background: #fee2e2;
+  color: #991b1b;
+  font-weight: 900;
+  cursor: pointer;
+}
+
+.cancel-order-button:hover {
+  background: #fecaca;
+}
