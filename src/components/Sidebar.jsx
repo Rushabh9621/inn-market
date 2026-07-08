@@ -33,7 +33,9 @@ export default function Sidebar({ activePage }) {
         <a className={activePage === "reports" ? "active" : ""} href="/reports">
   📊 Reports
 </a>
-        <span>⚙ Settings</span>
+        <a className={activePage === "settings" ? "active" : ""} href="/settings">
+  ⚙ Settings
+</a>
       </nav>
 
       <div className="sidebar-footer">Version 0.12.0</div>

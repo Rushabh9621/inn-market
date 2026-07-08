@@ -1,14 +1,19 @@
 import { useEffect, useState } from "react";
-import logo from "../assets/logo.png";
 import { API_URL, createOrder } from "../services/api";
 import ProductCard from "../components/guest/ProductCard";
 import StickyCart from "../components/guest/StickyCart";
+import ReviewModal from "../components/guest/ReviewModal";
+import WelcomeBanner from "../components/guest/WelcomeBanner";
+import logo from "../assets/logo.png";
+import CategorySelector from "../components/guest/CategorySelector";
+import LoadingSpinner from "../components/guest/LoadingSpinner";
 
 const categories = ["Drinks", "Snacks", "Toiletries"];
 
 export default function GuestPage() {
   const [products, setProducts] = useState([]);
   const [activeCategory, setActiveCategory] = useState("Drinks");
+  const [searchTerm, setSearchTerm] = useState("");
   const [roomNumber, setRoomNumber] = useState("");
   const [isQrRoom, setIsQrRoom] = useState(false);
   const [quantities, setQuantities] = useState({});
@@ -16,12 +21,27 @@ export default function GuestPage() {
   const [submitted, setSubmitted] = useState(false);
   const [lastOrder, setLastOrder] = useState(null);
   const [error, setError] = useState("");
+  const [loading, setLoading] = useState(true);
 
-  async function loadProducts() {
+async function loadProducts() {
+  setLoading(true);
+  setError("");
+
+  try {
     const res = await fetch(`${API_URL}/api/products`);
+
+    if (!res.ok) {
+      throw new Error("Products request failed");
+    }
+
     const data = await res.json();
     setProducts(data);
+  } catch {
+    setError("Could not load products. Please make sure the server is running.");
+  } finally {
+    setLoading(false);
   }
+}
 
   useEffect(() => {
     loadProducts();
@@ -42,16 +62,22 @@ export default function GuestPage() {
     }));
   };
 
-  const filteredProducts = products.filter(
-  (product) => product.category === activeCategory
-);
+const filteredProducts = products.filter((product) => {
+  const matchesCategory = product.category === activeCategory;
+  const matchesSearch = product.name
+    .toLowerCase()
+    .includes(searchTerm.toLowerCase());
+
+  return matchesCategory && matchesSearch;
+});
 
   const items = products
-    .map((p) => ({
-      name: p.name,
-      price: Number(p.price),
-      quantity: quantities[p.id] || 0,
-    }))
+  .map((p) => ({
+    id: p.id,
+    name: p.name,
+    price: Number(p.price),
+    quantity: quantities[p.id] || 0,
+  }))
     .filter((item) => item.quantity > 0);
 
   const total = items.reduce(
@@ -107,46 +133,55 @@ export default function GuestPage() {
   };
 
   if (submitted && lastOrder) {
-    return (
-      <div className="page">
-        <div className="card success-card">
-          <img src={logo} className="logo" alt="The Inn At Clinton" />
-          <div className="success-icon">✅</div>
-          <div className="eyebrow">Order Received</div>
-          <h1>Thank you!</h1>
-          <p>Your order has been sent to the Front Desk.</p>
+  return (
+    <div className="page">
+      <div className="card success-card">
+        <img src={logo} className="logo" alt="The Inn At Clinton" />
 
-          <div className="success-summary">
-            <strong>Room {lastOrder.roomNumber}</strong>
-            <strong>${lastOrder.total.toFixed(2)}</strong>
+        <div className="success-icon">✅</div>
+
+        <div className="eyebrow">Order Confirmed</div>
+
+        <h1>Thank you!</h1>
+
+        <p className="success-message">
+          Your order has been sent to the Front Desk.
+        </p>
+
+        <div className="success-details">
+          <div>
+            <span>Room</span>
+            <strong>{lastOrder.roomNumber}</strong>
           </div>
 
-          <p>Please pick up your order at the Front Desk.</p>
-          <p>Payment by cash or card at pickup.</p>
+          <div>
+            <span>Total</span>
+            <strong>${Number(lastOrder.total).toFixed(2)}</strong>
+          </div>
 
-          <button className="secondary-button" onClick={startNewOrder}>
-            Start New Order
-          </button>
+          <div>
+            <span>Estimated Pickup</span>
+            <strong>5–10 Minutes</strong>
+          </div>
         </div>
+
+        <div className="pickup-note">
+          <strong>Pickup at Front Desk</strong>
+          <span>Payment by cash or card at pickup.</span>
+        </div>
+
+        <button className="primary-button" onClick={startNewOrder}>
+          Start New Order
+        </button>
       </div>
-    );
-  }
+    </div>
+  );
+}
 
   return (
     <div className="page">
       <div className="card">
-        <img src={logo} className="logo" alt="The Inn At Clinton" />
-
-        <div className="eyebrow">Guest Market</div>
-        <h1>Welcome to The Inn At Clinton</h1>
-
-        <p className="subtitle">
-          Order from your room and pick up at the Front Desk.
-        </p>
-
-        <div className="info-box">
-          Pickup only • Payment at Front Desk • Cash or Card
-        </div>
+        <WelcomeBanner />
 
         {isQrRoom ? (
           <div className="verified-room">
@@ -167,28 +202,33 @@ export default function GuestPage() {
           </>
         )}
 
-        <div className="guest-categories">
-          {categories.map((category) => (
-            <button
-              key={category}
-              className={activeCategory === category ? "active" : ""}
-              onClick={() => setActiveCategory(category)}
-            >
-              
-              {category === "Drinks" && "🥤 Drinks"}
-              {category === "Snacks" && "🍫 Snacks"}
-              {category === "Toiletries" && "🪥 Toiletries"}
-            </button>
-          ))}
-        </div>
+        <CategorySelector
+  categories={categories}
+  activeCategory={activeCategory}
+  onSelect={setActiveCategory}
+/>
 
+        <div className="guest-search-box">
+  <input
+    value={searchTerm}
+    onChange={(e) => setSearchTerm(e.target.value)}
+    placeholder="Search products..."
+  />
+</div>
         <div className="section-header">
           <h2>{activeCategory} Products</h2>
           <span>{selectedCount} selected</span>
         </div>
 
+        {loading && <LoadingSpinner text="Loading products..." />}
+        {!loading && filteredProducts.length === 0 && (
+  <p className="empty-products-message">
+    No products found in {activeCategory}.
+  </p>
+)}
+        {error && <p className="error-box">{error}</p>}
         <div className="guest-product-grid">
-          {filteredProducts.map((product) => (
+          {!loading && filteredProducts.map((product) => (
             <ProductCard
   key={product.id}
   product={product}
@@ -205,42 +245,15 @@ export default function GuestPage() {
   onReview={reviewOrder}
 />
 
-        {showReview && (
-          <div className="modal-backdrop">
-            <div className="review-modal">
-              <div className="eyebrow">Review Order</div>
-              <h2>Room {roomNumber}</h2>
-
-              {items.map((item) => (
-                <div className="review-row" key={item.name}>
-                  <span>
-                    {item.name} × {item.quantity}
-                  </span>
-                  <strong>${(item.price * item.quantity).toFixed(2)}</strong>
-                </div>
-              ))}
-
-              <div className="review-total">
-                <span>Total</span>
-                <strong>${total.toFixed(2)}</strong>
-              </div>
-
-              {error && <div className="error-box">{error}</div>}
-
-              <div className="review-actions">
-                <button
-                  className="secondary-button"
-                  onClick={() => setShowReview(false)}
-                >
-                  Cancel
-                </button>
-                <button className="primary-button" onClick={confirmOrder}>
-                  Confirm Order
-                </button>
-              </div>
-            </div>
-          </div>
-        )}
+        <ReviewModal
+  showReview={showReview}
+  roomNumber={roomNumber}
+  items={items}
+  total={total}
+  error={error}
+  onCancel={() => setShowReview(false)}
+  onConfirm={confirmOrder}
+/>
       </div>
     </div>
   );

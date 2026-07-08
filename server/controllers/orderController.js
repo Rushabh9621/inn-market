@@ -1,4 +1,5 @@
 import { db } from "../database/database.js";
+import { changeProductStock } from "../services/inventoryService.js";
 
 function formatOrder(row) {
   const items = db
@@ -50,19 +51,28 @@ export function createOrder(io) {
       VALUES (?, ?, ?, ?)
     `);
 
-    const reduceStock = db.prepare(`
-      UPDATE products
-      SET stock = CASE WHEN stock - ? < 0 THEN 0 ELSE stock - ? END
-      WHERE name = ?
-    `);
+    
 
     const transaction = db.transaction(() => {
       insertOrder.run(id, req.body.roomNumber, req.body.total, "new", createdAt);
 
       req.body.items.forEach((item) => {
-        insertItem.run(id, item.name, item.price, item.quantity);
-        reduceStock.run(item.quantity, item.quantity, item.name);
-      });
+  insertItem.run(id, item.name, item.price, item.quantity);
+
+  const product = db
+    .prepare("SELECT id FROM products WHERE name = ?")
+    .get(item.name);
+
+  if (product) {
+    changeProductStock({
+      productId: product.id,
+      quantityChanged: -item.quantity,
+      reason: "Guest Order",
+      reference: id,
+      user: `Room ${req.body.roomNumber}`,
+    });
+  }
+});
     });
 
     transaction();

@@ -7,7 +7,7 @@ import Inventory from "./pages/Inventory";
 import Rooms from "./pages/Rooms";
 import QRManager from "./pages/QRManager";
 import Reports from "./pages/Reports";
-
+import Settings from "./pages/Settings";
 function App() {
   return (
     <BrowserRouter>
@@ -19,6 +19,7 @@ function App() {
         <Route path="/rooms" element={<Rooms />} />
         <Route path="/qrcodes" element={<QRManager />} />
         <Route path="/reports" element={<Reports />} />
+        <Route path="/settings" element={<Settings />} />
       </Routes>
     </BrowserRouter>
   );
